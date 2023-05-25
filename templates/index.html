@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BTC Price Forecast</title>
+    <style>
+        body {
+            
+            background-color: #94cc8f;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+           
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333333;
+            margin-top: 0;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #cccccc;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0a980f;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #forecast-results {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #forecast-results p {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body background="green-background.jpg">
+    <div class="container">
+        <h1>BTC Price Forecast</h1>
+        <form action="/forecast" method="POST">
+            <label for="days">Number of Days to Forecast:</label>
+            <input type="number" id="days" name="days" min="1" required><br>
+          <br><button type="submit">Forecast</button>
+        </form>
+        <div id="forecast-results"></div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.querySelector('form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            var days = document.getElementById('days').value;
+
+            // Make AJAX request to fetch the forecast
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/forecast', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    displayForecast(response.forecast, response.mae);
+                }
+            };
+            xhr.send('days=' + days);
+        });
+
+        // Display forecast results
+        function displayForecast(forecast, mae) {
+            var forecastResults = document.getElementById('forecast-results');
+            forecastResults.innerHTML = '';
+
+            var forecastTitle = document.createElement('p');
+            forecastTitle.textContent = 'Forecasted BTC Prices:';
+            forecastResults.appendChild(forecastTitle);
+
+            var forecastList = document.createElement('ul');
+            forecast.forEach(function (price) {
+                var listItem = document.createElement('li');
+                listItem.textContent = price;
+                forecastList.appendChild(listItem);
+            });
+            forecastResults.appendChild(forecastList);
+
+            var accuracy = document.createElement('p');
+            accuracy.textContent = 'Mean Absolute Error (MAE): ' + mae;
+            forecastResults.appendChild(accuracy);
+        }
+    </script>
+</body>
+</html>
